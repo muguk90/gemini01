@@ -93,7 +93,29 @@ def main():
                     pdf_text += page.extract_text()
                 
                 # Gemini 모델 설정
-                model = genai.GenerativeModel('gemini-pro')
+                model = genai.GenerativeModel('gemini-1.5-pro')
+                
+                # 모델 설정
+                generation_config = {
+                    "temperature": 0.7,
+                    "top_p": 0.8,
+                    "top_k": 40,
+                    "max_output_tokens": 2048,
+                }
+                
+                safety_settings = [
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                ]
+                
+                model.generate_content = lambda *args, **kwargs: model.generate_content(
+                    *args,
+                    generation_config=generation_config,
+                    safety_settings=safety_settings,
+                    **kwargs
+                )
                 
                 if st.button("논문 분석 시작"):
                     with st.spinner("분석 중..."):
