@@ -110,12 +110,19 @@ def main():
                     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
                 ]
                 
-                model.generate_content = lambda *args, **kwargs: model.generate_content(
-                    *args,
-                    generation_config=generation_config,
-                    safety_settings=safety_settings,
-                    **kwargs
-                )
+                # 기존 generate_content 함수를 저장
+                original_generate_content = model.generate_content
+                
+                # 새로운 generate_content 함수 정의
+                def new_generate_content(*args, **kwargs):
+                    return original_generate_content(
+                        *args,
+                        generation_config=generation_config,
+                        safety_settings=safety_settings
+                    )
+                
+                # 모델의 generate_content 함수 교체
+                model.generate_content = new_generate_content
                 
                 if st.button("논문 분석 시작"):
                     with st.spinner("분석 중..."):
